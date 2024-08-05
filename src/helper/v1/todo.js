@@ -2,52 +2,108 @@ import { todocoll } from "../../db/mongo.js";
 import { addTodoSchema } from "../../modal/todo.js";
 
 
-const addTodoHelper = (data) => {
+export const createHelper = async (body, _id) => {
     return new Promise(async (resolve, reject) => {
         const todo_coll = await todocoll();
-        let addData = await addTodoSchema(data);
-        todo_coll.insertOne(addData)
-            .then(result => {
-                resolve({
-                    status: "success",
-                    error: false,
-                    message: "Todo added successfully"
-                });
-            })
-            .catch(err => {
-                reject({
-                    status: "error",
-                    error: true,
-                    message: err.message || "An error occurred while adding the Todo"
-                });
-            });
-    })
-}
-
-const getAllTodoHelper = (query) => {
-    return new Promise(async (resolve, reject) => {
-        const todo_coll = await todocoll();
-        todo_coll.find(query).toArray()
-            .then(results => {
-                if (results.length > 0) {
-                    let todoIds = results.map(todo => todo)
-                    resolve({
-                        status: "success",
-                        error: false,
-                        message: "Todos Found successfully",
-                        data: todoIds
-                    });
+        todo_coll.findOne({ _id: body?._id })
+            .then(async todoCheck => {
+                if (todoCheck) {
+                    let resp = {
+                        code: 409,
+                        error: true,
+                        message: "Todo already exists",
+                        data: verticalCheck,
+                    }
+                    reject(resp)
+                }
+                else {
+                    let data = await addTodoSchema(body)
+                    todo_coll.insertOne(data)
+                        .then(async createTodo => {
+                            let resp = {
+                                code: 200,
+                                error: false,
+                                message: "Todo created successfully",
+                                data: data,
+                            }
+                            resolve(resp)
+                        })
+                        .catch(err => {
+                            let resp = {
+                                code: 500,
+                                error: true,
+                                message: err.message,
+                            }
+                            reject(resp)
+                        })
                 }
             })
             .catch(err => {
-                reject({
-                    status: "error",
+                let resp = {
+                    code: 500,
                     error: true,
-                    message: err.message || "An error occurred while geting the todos"
-                });
-            });
+                    message: err.message,
+                }
+                reject(resp)
+            })
     })
 }
 
+export const getAllHelper = async () => {
+    return new Promise(async (resolve, reject) => {
+        const todo_coll = await todocoll();
+        todo_coll.find().toArray()
+            .then(async results => {
+                if (results.length > 0) {
+                    const data = results.map(result => result)
+                    let resp = {
+                        code: 200,
+                        error: false,
+                        message: "Todos Found successfully",
+                        data: data
+                    }
+                    resolve(resp)
+                }
+                else {
+                    let resp = {
+                        code: 404,
+                        error: true,
+                        message: "Todo Collection Is Empty",
+                    }
+                    reject(resp)
+                }
+            })
+            .catch(err => {
+                let resp = {
+                    code: 500,
+                    error: true,
+                    message: err.message,
+                }
+                reject(resp)
+            })
+    })
+}
 
-export { addTodoHelper, getAllTodoHelper };
+export const getOneHelper = (todoId) => {
+    return new Promise(async (resolve, reject) => {
+        const todo_coll = await todocoll();
+        todo_coll.findOne({ uid: todoId })
+            .then(async result => {
+                let resp = {
+                    code: 200,
+                    error: false,
+                    message: "Todos Found successfully",
+                    data: result
+                }
+                resolve(resp)
+            })
+            .catch(err => {
+                let resp = {
+                    code: 500,
+                    error: true,
+                    message: err.message,
+                }
+                reject(resp)
+            })
+    });
+};

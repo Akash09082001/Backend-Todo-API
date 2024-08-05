@@ -1,9 +1,10 @@
 import { Router } from "express"
-import { addTodo, getAllTodos } from "../../controllers/v1/todo.js"
+import { addTodo, getAllTodo, getOneTodo } from "../../controllers/v1/todo.js"
 
 const todoRouter = Router()
 
 todoRouter.post("/add", addTodo)
-todoRouter.get("/all", getAllTodos)
+todoRouter.get("/all", getAllTodo)
+todoRouter.get("/:id", getOneTodo)
 
 export { todoRouter }

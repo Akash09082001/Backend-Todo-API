@@ -1,9 +1,10 @@
-const general = async uid => {
+import { uuid } from "uuidv4"
+
+const general = async () => {
 	let data = {
+		uid: uuid(),
 		createdAt: new Date(),
 		updatedAt: new Date(),
-		createdBy: uid,
-		updatedBy: uid,
 	}
 	return data
 }
@@ -16,9 +17,8 @@ const timestamp = async () => {
 	return data
 }
 
-const updateTimestamp = async uid => {
+const updateTimestamp = async () => {
 	let data = {
-		updatedBy: uid,
 		updatedAt: new Date(),
 	}
 	return data

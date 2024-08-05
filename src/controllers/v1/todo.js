@@ -1,70 +1,88 @@
-import { error, success } from "../../configs/response.js"
-import { addTodoHelper, getAllTodoHelper } from "../../helper/v1/todo.js"
+import { success } from "../../configs/response.js"
+import { createHelper, getAllHelper, getOneHelper } from "../../helper/v1/todo.js"
 
-const addTodo = (req, res) => {
-	let data = req.body
-	addTodoHelper(data)
-		.then(result => {
-			if (result.status === "success") {
-				res.status(200).json(
-					success(
-						"Task added successfully",
-						{ data: result },
-						res.statusCode
-					)
+export const addTodo = (req, res) => {
+	let body = req.body
+	createHelper(body)
+		.then(async result => {
+			res.status(result.code).json(
+				success(
+					"Todo created successfully",
+					{
+						data: result.data
+					},
+					res.statusCode
 				)
-			} else {
-				res.status(500).json(
-					error(
-						"Getting error while adding task",
-						{ data: result.message },
-						res.statusCode
-					)
-				)
-			}
+			)
 		})
-		.catch(err => {
+		.catch(error => {
 			res.status(500).json(
-				error(
-					"An error occurred while adding the task. Please try again later.",
-					{ data: err.message },
+				success(
+					"Error created Todo",
+					{
+						data: {
+							error: error?.message || "Internal server error"
+						}
+					},
 					res.statusCode
 				)
 			)
 		})
 }
 
-const getAllTodos = (req, res) => {
-	const query = req.query._id
-	getAllTodoHelper(query)
-		.then(result => {
-			if (result.status === "success") {
-				res.status(200).json(
-					success(
-						"Todos get successfully",
-						{ data: result },
-						res.statusCode
-					)
+export const getAllTodo = (req, res) => {
+	getAllHelper()
+		.then(async result => {
+			res.status(result.code).json(
+				success(
+					"Todos Found successfully",
+					{
+						data: result.data
+					},
+					res.statusCode
 				)
-			} else {
-				res.status(500).json(
-					error(
-						"Getting error while getting todo",
-						{ data: result.message },
-						res.statusCode
-					)
-				)
-			}
+			)
 		})
-		.catch(err => {
+		.catch(error => {
 			res.status(500).json(
-				error(
-					"An error occurred while adding the todos. Please try again later.",
-					{ data: err.message },
+				success(
+					"Error in Finding Todos",
+					{
+						data: {
+							error: error?.message || "Internal server error"
+						}
+					},
 					res.statusCode
 				)
 			)
 		})
 }
 
-export { addTodo, getAllTodos }
+export const getOneTodo = (req, res) => {
+	let todoId = req.params.id;
+	getOneHelper(todoId)
+		.then(async result => {
+			res.status(result.code).json(
+				success(
+					"Todo Found successfully",
+					{
+						data: result.data
+					},
+					res.statusCode
+				)
+			)
+		})
+		.catch(error => {
+			res.status(500).json(
+				success(
+					"Error in Finding Todo",
+					{
+						data: {
+							error: error?.message || "Internal server error"
+						}
+					},
+					res.statusCode
+				)
+			)
+		})
+}
