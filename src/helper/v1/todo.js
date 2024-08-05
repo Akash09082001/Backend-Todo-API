@@ -147,3 +147,37 @@ export const updateOneHelper = ({ uid, body }) => {
             })
     })
 }
+
+export const deleteHelper = (uid) => {
+    return new Promise(async (resolve, reject) => {
+        const todo_coll = await todocoll();
+        todo_coll.findOne({ uid: uid })
+            .then(async () => {
+                todo_coll.deleteOne({ uid: uid })
+                    .then(async () => {
+                        let resp = {
+                            code: 200,
+                            error: false,
+                            message: "Todo Deleted successfully",
+                        }
+                        resolve(resp)
+                    })
+                    .catch(err => {
+                        let resp = {
+                            code: 500,
+                            message: "Internal Server Error", err,
+                            error: true,
+                        }
+                        reject(resp)
+                    })
+            })
+            .catch(err => {
+                let resp = {
+                    code: 500,
+                    error: true,
+                    message: err.message,
+                }
+                reject(resp)
+            })
+    })
+}

@@ -1,5 +1,5 @@
 import { success } from "../../configs/response.js"
-import { createHelper, getAllHelper, getOneHelper, updateOneHelper } from "../../helper/v1/todo.js"
+import { createHelper, deleteHelper, getAllHelper, getOneHelper, updateOneHelper } from "../../helper/v1/todo.js"
 
 export const addTodo = (req, res) => {
 	let body = req.body
@@ -103,6 +103,32 @@ export const updateOneTodo = (req, res) => {
 			res.status(500).json(
 				success(
 					"Error in Updating Todo",
+					{
+						data: {
+							error: error?.message || "Internal server error"
+						}
+					},
+					res.statusCode
+				)
+			)
+		})
+}
+
+export const deleteTodo = (req, res) => {
+	const uid = req.params.id;
+	deleteHelper(uid)
+		.then(async result => {
+			res.status(result.code).json(
+				success(
+					"Todo Deleted successfully",
+					res.statusCode
+				)
+			)
+		})
+		.catch(error => {
+			res.status(500).json(
+				success(
+					"Error in Deleting Todo",
 					{
 						data: {
 							error: error?.message || "Internal server error"
