@@ -84,15 +84,15 @@ export const getAllHelper = async () => {
     })
 }
 
-export const getOneHelper = (todoId) => {
+export const getOneHelper = (uid) => {
     return new Promise(async (resolve, reject) => {
         const todo_coll = await todocoll();
-        todo_coll.findOne({ uid: todoId })
+        todo_coll.findOne({ uid: uid })
             .then(async result => {
                 let resp = {
                     code: 200,
                     error: false,
-                    message: "Todos Found successfully",
+                    message: "Todo Found successfully",
                     data: result
                 }
                 resolve(resp)
@@ -107,3 +107,43 @@ export const getOneHelper = (todoId) => {
             })
     });
 };
+
+export const updateOneHelper = ({ uid, body }) => {
+    return new Promise(async (resolve, reject) => {
+        const todo_coll = await todocoll();
+        todo_coll.findOne({ uid: uid })
+            .then(async () => {
+                todo_coll.updateOne({ uid: uid }, {
+                    $set: {
+                        title: body?.title,
+                        description: body?.description,
+                    }
+                })
+                    .then(async () => {
+                        let resp = {
+                            code: 200,
+                            error: false,
+                            message: "Todo Update successfully",
+                        }
+                        resolve(resp)
+                    })
+                    .catch(err => {
+                        let resp = {
+                            code: 500,
+                            message: "Internal Server Error", err,
+                            error: true,
+                            updated: false,
+                        }
+                        reject(resp)
+                    })
+            })
+            .catch(err => {
+                let resp = {
+                    code: 500,
+                    error: true,
+                    message: err.message,
+                }
+                reject(resp)
+            })
+    })
+}

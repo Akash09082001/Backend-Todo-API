@@ -1,5 +1,5 @@
 import { success } from "../../configs/response.js"
-import { createHelper, getAllHelper, getOneHelper } from "../../helper/v1/todo.js"
+import { createHelper, getAllHelper, getOneHelper, updateOneHelper } from "../../helper/v1/todo.js"
 
 export const addTodo = (req, res) => {
 	let body = req.body
@@ -59,8 +59,8 @@ export const getAllTodo = (req, res) => {
 }
 
 export const getOneTodo = (req, res) => {
-	let todoId = req.params.id;
-	getOneHelper(todoId)
+	let uid = req.params.id;
+	getOneHelper(uid)
 		.then(async result => {
 			res.status(result.code).json(
 				success(
@@ -76,6 +76,33 @@ export const getOneTodo = (req, res) => {
 			res.status(500).json(
 				success(
 					"Error in Finding Todo",
+					{
+						data: {
+							error: error?.message || "Internal server error"
+						}
+					},
+					res.statusCode
+				)
+			)
+		})
+}
+
+export const updateOneTodo = (req, res) => {
+	const uid = req.params.id;
+	let body = req.body
+	updateOneHelper({ uid, body })
+		.then(async result => {
+			res.status(result.code).json(
+				success(
+					"Todo Updated successfully",
+					res.statusCode
+				)
+			)
+		})
+		.catch(error => {
+			res.status(500).json(
+				success(
+					"Error in Updating Todo",
 					{
 						data: {
 							error: error?.message || "Internal server error"
